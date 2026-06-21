@@ -33,10 +33,10 @@ public sealed class GameMain : Game
     private readonly List<Caption> _captions = [];
 
     private GameState _gameState = GameState.Title;
-        private float _spawnTimer = 0f;
-        private readonly Random _random = Random.Shared;
-        private bool _leftArrowPressed;
-        private bool _rightArrowPressed;
+    private float _spawnTimer = 0f;
+    private readonly Random _random = Random.Shared;
+    private bool _leftArrowPressed;
+    private bool _rightArrowPressed;
 
     public GameMain()
     {
@@ -94,32 +94,52 @@ public sealed class GameMain : Game
     }
 
     protected override void Update(GameTime gameTime)
+    {
+        switch (_gameState)
         {
-            switch (_gameState)
-            {
-                case GameState.Title:
-                    HandleTitleState();
-                    break;
+            case GameState.Title:
+                HandleTitleState();
+                break;
 
-                case GameState.Playing:
-                    HandlePlayingState(gameTime);
-                    break;
+            case GameState.Playing:
+                HandlePlayingState(gameTime);
+                break;
 
-                case GameState.Paused:
-                    HandlePausedState();
-                    break;
+            case GameState.Paused:
+                HandlePausedState();
+                break;
 
-                case GameState.GameOver:
-                    HandleGameOverState();
-                    break;
-            }
-
-            base.Update(gameTime);
+            case GameState.GameOver:
+                HandleGameOverState();
+                break;
         }
+
+        base.Update(gameTime);
+    }
+
+    private bool IsGameAreaTouched
+    {
+        get
+        {
+            float scale = (float)GraphicsDevice.Viewport.Height / ScreenHeight;
+            float scaledWidth = ScreenWidth * scale;
+            float gameAreaX = (GraphicsDevice.Viewport.Width - scaledWidth) / 2f;
+            float gameAreaRight = gameAreaX + scaledWidth;
+            
+            foreach (TouchLocation touch in TouchPanel.GetState())
+            {
+                if (touch.State == TouchLocationState.Pressed)
+                {
+                    return touch.Position.X >= gameAreaX && touch.Position.X <= gameAreaRight;
+                }
+            }
+            return false;
+        }
+    }
 
     private void HandleTitleState()
     {
-        if (TouchPanel.GetState().Any(t => t.State == TouchLocationState.Pressed))
+        if (IsGameAreaTouched)
         {
             SoundManager.Instance.PlayBGM();
             TriggerGameStarted();
@@ -256,7 +276,7 @@ public sealed class GameMain : Game
 
     private void HandlePausedState()
     {
-        if (TouchPanel.GetState().Any(t => t.State == TouchLocationState.Pressed))
+        if (IsGameAreaTouched)
         {
             SoundManager.ResumeBGM();
             _gameState = GameState.Playing;
@@ -265,7 +285,7 @@ public sealed class GameMain : Game
 
     private void HandleGameOverState()
     {
-        if (TouchPanel.GetState().Any(t => t.State == TouchLocationState.Pressed))
+        if (IsGameAreaTouched)
         {
             SoundManager.Instance.PlayBGM();
             TriggerGameStarted();
@@ -320,20 +340,20 @@ public sealed class GameMain : Game
 
         if (_gameState == GameState.Title)
         {
-            DrawTextWithBgColor("ZONGZI CATCHER: Dragon Boat Festival",
-                new Vector2(ScreenWidth / 2f - 200f, ScreenHeight / 2f - 80f),
+            DrawCenteredText("ZONGZI CATCHER: Dragon Boat Festival",
+                ScreenHeight / 2f - 80f,
                 Color.White, Color.DarkCyan);
 
-            DrawTextWithBgColor("Tap the screen to begin",
-                new Vector2(ScreenWidth / 2f - 130f, ScreenHeight / 2f - 30f),
+            DrawCenteredText("Tap the screen to begin",
+                ScreenHeight / 2f - 30f,
                 Color.Yellow, new Color(0, 0, 0, 200));
 
-            DrawTextWithBgColor("Tap arrow buttons to move | Tap game area to pause",
-                new Vector2(ScreenWidth / 2f - 220f, ScreenHeight / 2f + 50f),
+            DrawCenteredText("Tap arrow buttons to move | Tap game area to pause",
+                ScreenHeight / 2f + 50f,
                 Color.White, new Color(0, 0, 0, 200));
 
-            DrawTextWithBgColor("Catch zongzi (+10 pts) | Avoid scorpions (-1 Life)",
-                new Vector2(ScreenWidth / 2f - 225f, ScreenHeight / 2f + 90f),
+            DrawCenteredText("Catch zongzi (+10 pts) | Avoid scorpions (-1 Life)",
+                ScreenHeight / 2f + 90f,
                 Color.White, new Color(0, 0, 0, 200));
         }
         else
@@ -384,27 +404,27 @@ public sealed class GameMain : Game
 
             if (_gameState == GameState.GameOver)
             {
-                DrawTextWithBgColor("GAME OVER!",
-                    new Vector2(ScreenWidth / 2f - 80f, ScreenHeight / 2f - 50f),
+                DrawCenteredText("GAME OVER!",
+                    ScreenHeight / 2f - 50f,
                     Color.White, Color.DarkRed);
 
-                DrawTextWithBgColor($"Final Score: {_player.Score,5}",
-                    new Vector2(ScreenWidth / 2f - 100f, ScreenHeight / 2f),
+                DrawCenteredText($"Final Score: {_player.Score,5}",
+                    ScreenHeight / 2f,
                     Color.White, new Color(0, 0, 0, 200));
 
-                DrawTextWithBgColor("Tap the screen to restart",
-                    new Vector2(ScreenWidth / 2f - 150f, ScreenHeight / 2f + 50f),
+                DrawCenteredText("Tap the screen to restart",
+                    ScreenHeight / 2f + 50f,
                     Color.White, new Color(0, 0, 0, 200));
             }
 
             if (_gameState == GameState.Paused)
             {
-                DrawTextWithBgColor("PAUSED",
-                    new Vector2(ScreenWidth / 2f - 60f, ScreenHeight / 2f - 30f),
+                DrawCenteredText("PAUSED",
+                    ScreenHeight / 2f - 30f,
                     Color.White, Color.DarkBlue);
 
-                DrawTextWithBgColor("Tap the screen to continue",
-                    new Vector2(ScreenWidth / 2f - 150f, ScreenHeight / 2f + 20f),
+                DrawCenteredText("Tap the screen to continue",
+                    ScreenHeight / 2f + 20f,
                     Color.Yellow, new Color(0, 0, 0, 200));
             }
         }
@@ -465,5 +485,11 @@ public sealed class GameMain : Game
         pixel.SetData([bgColor]);
         _spriteBatch.Draw(pixel, bgRect, bgColor);
         _spriteBatch.DrawString(_font, text, position, textColor);
+    }
+
+    private void DrawCenteredText(string text, float textY, Color textColor, Color bgColor)
+    {
+        float textX = (ScreenWidth - _font.MeasureString(text).X) / 2;
+        DrawTextWithBgColor(text, new(textX, textY), textColor, bgColor);
     }
 }

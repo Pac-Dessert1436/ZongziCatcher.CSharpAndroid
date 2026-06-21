@@ -39,11 +39,11 @@ dotnet build
 **Background Music:**
 - *The Fun Begins* by Oblidivm
 - License: CC-BY 4.0
-- Source: [OpenGameArt](https://opengameart.org/content/chiptune-music-for-arcade-games)
+- Source: [Chiptune Music for Arcade Games](https://opengameart.org/content/chiptune-music-for-arcade-games)
 
-**Font:** Yozai Regular (OFL-1.1) by lxgw
+**Font:** _Yozai Regular_ by lxgw, licensed under OFL-1.1
 
-**Sound Effects:** 8-bit Sound Pack (CC0) by SubspaceAudio
+**Sound Effects:** [512 Sound Effects (8-bit Style)](https://opengameart.org/content/512-sound-effects-8-bit-style) by SubspaceAudio, licensed under CC0
 
 ## 📄 License
 
